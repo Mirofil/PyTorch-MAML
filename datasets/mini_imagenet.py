@@ -24,8 +24,8 @@ class MiniImageNet(Dataset):
                   'meta-test': 'test',                 # meta-test
                  }
     split_tag = split_dict[split]
-
     split_file = os.path.join(root_path, split_tag + '.pickle')
+    print(f"Looking for path: {split_file}")
     assert os.path.isfile(split_file)
     with open(split_file, 'rb') as f:
       pack = pickle.load(f, encoding='latin1')
