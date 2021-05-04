@@ -95,10 +95,11 @@ class MAML(Module):
       # forward pass
       logits = self._inner_forward(x, params, episode)
       loss = F.cross_entropy(logits, y)
+
       # backward pass
       grads = autograd.grad(loss, params.values(), 
         create_graph=(not detach and not inner_args['first_order']),
-        only_inputs=True, allow_unused=True)
+        only_inputs=True, allow_unused=True, retain_graph=True)
       # parameter update
       updated_params = OrderedDict()
       for (name, param), grad in zip(params.items(), grads):
@@ -121,7 +122,7 @@ class MAML(Module):
           updated_param = updated_param.detach().requires_grad_(True)
         updated_params[name] = updated_param
 
-    return updated_params, mom_buffer
+    return updated_params, mom_buffer, loss
 
   def _adapt(self, x, y, params, episode, inner_args, meta_train):
     """
@@ -168,12 +169,12 @@ class MAML(Module):
 
       detach = not torch.is_grad_enabled()  # detach graph in the first pass
       self.is_first_pass(detach)
-      params, mom_buffer = self._inner_iter(
+      params, mom_buffer, loss = self._inner_iter(
         x, y, params, mom_buffer, int(episode), inner_args, detach)
       state = tuple(t if t.requires_grad else t.clone().requires_grad_(True)
         for t in tuple(params.values()) + tuple(mom_buffer.values()))
       return state
-
+    losses = []
     for step in range(inner_args['n_step']):
       if self.efficient:  # checkpointing
         state = tuple(params.values()) + tuple(mom_buffer.values())
@@ -182,10 +183,11 @@ class MAML(Module):
         mom_buffer = OrderedDict(
           zip(mom_buffer_keys, state[-len(mom_buffer_keys):]))
       else:
-        params, mom_buffer = self._inner_iter(
+        params, mom_buffer, loss = self._inner_iter(
           x, y, params, mom_buffer, episode, inner_args, not meta_train)
+        losses.append(loss)
         
-    return params
+    return params, losses
 
   def forward(self, x_shot, x_query, y_shot, inner_args, meta_train):
     """
@@ -220,7 +222,7 @@ class MAML(Module):
         for m in self.modules():
           if isinstance(m, BatchNorm2d) and not m.is_episodic():
             m.eval()
-      updated_params = self._adapt(
+      updated_params, sotl = self._adapt(
         x_shot[ep], y_shot[ep], params, ep, inner_args, meta_train)
       # inner-loop validation
       with torch.set_grad_enabled(meta_train):
@@ -230,4 +232,4 @@ class MAML(Module):
 
     self.train(meta_train)
     logits = torch.stack(logits)
-    return logits
+    return logits, sotl

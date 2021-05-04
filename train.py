@@ -18,7 +18,7 @@ import utils
 import utils.optimizers as optimizers
 
 
-def main(config):
+def main(config, args):
   random.seed(0)
   np.random.seed(0)
   torch.manual_seed(0)
@@ -127,21 +127,31 @@ def main(config):
         else:
           model.reset_classifier()
 
-      logits = model(x_shot, x_query, y_shot, inner_args, meta_train=True)
+      logits, sotl = model(x_shot, x_query, y_shot, inner_args, meta_train=True)
       logits = logits.flatten(0, 1)
       labels = y_query.flatten()
       
-      pred = torch.argmax(logits, dim=-1)
-      acc = utils.compute_acc(pred, labels)
-      loss = F.cross_entropy(logits, labels)
-      aves['tl'].update(loss.item(), 1)
-      aves['ta'].update(acc, 1)
+
+      if args.split == "train-val":
+        pred = torch.argmax(logits, dim=-1)
+        acc = utils.compute_acc(pred, labels)
+        loss = F.cross_entropy(logits, labels)
+        aves['tl'].update(loss.item(), 1)
+        aves['ta'].update(acc, 1)
       
-      optimizer.zero_grad()
-      loss.backward()
-      for param in optimizer.param_groups[0]['params']:
-        nn.utils.clip_grad_value_(param, 10)
-      optimizer.step()
+        optimizer.zero_grad()
+        loss.backward()
+        for param in optimizer.param_groups[0]['params']:
+          nn.utils.clip_grad_value_(param, 10)
+        optimizer.step()
+      elif args.split == "train-train":
+
+        optimizer.zero_grad()
+        all_losses = sum(sotl)
+        all_losses.backward()
+        for param in optimizer.param_groups[0]['params']:
+          nn.utils.clip_grad_value_(param, 10)
+        optimizer.step()
 
     # meta-val
     if eval_val:
@@ -254,6 +264,10 @@ if __name__ == '__main__':
   parser.add_argument('--efficient', 
                       help='if True, enables gradient checkpointing',
                       action='store_true')
+  parser.add_argument('--split', default = "train-val",
+                    help='Whether to do normal MAML or SoTL-MAML',
+                    action='store_true')
+  
   args = parser.parse_args()
   config = yaml.load(open(args.config, 'r'), Loader=yaml.FullLoader)
 
@@ -262,4 +276,4 @@ if __name__ == '__main__':
     config['_gpu'] = args.gpu
 
   utils.set_gpu(args.gpu)
-  main(config)
+  main(config, args)
