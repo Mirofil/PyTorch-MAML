@@ -74,7 +74,7 @@ def main(config, args):
   ##### Model and Optimizer #####
 
   inner_args = utils.config_inner_args(config.get('inner_args'))
-  if config.get('load'):
+  if config.get('load') or args.load is True:
     ckpt = torch.load(config['load'])
     config['encoder'] = ckpt['encoder']
     config['encoder_args'] = ckpt['encoder_args']
@@ -162,6 +162,7 @@ def main(config, args):
           nn.utils.clip_grad_value_(param, 10)
         optimizer.step()
       else:
+        print(f"Args.split is {args.split}")
         raise NotImplementedError
 
     # meta-val
@@ -278,6 +279,8 @@ if __name__ == '__main__':
                       action='store_true')
   parser.add_argument('--split', default = "trainval", type=str,
                     help='Whether to do normal MAML or SoTL-MAML')
+  parser.add_argument('--load', default = True, type=lambda x: False if x in ["False", "false", "", "None"] else True,
+                  help='Whether to do normal MAML or SoTL-MAML')
   
   args = parser.parse_args()
   config = yaml.load(open(args.config, 'r'), Loader=yaml.FullLoader)
