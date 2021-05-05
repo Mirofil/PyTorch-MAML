@@ -99,7 +99,7 @@ class MAML(Module):
       # backward pass
       grads = autograd.grad(loss, params.values(), 
         create_graph=(not detach and not inner_args['first_order']),
-        only_inputs=True, allow_unused=True)
+        only_inputs=True, allow_unused=True, retain_graph=True)
       # parameter update
       updated_params = OrderedDict()
       for (name, param), grad in zip(params.items(), grads):
