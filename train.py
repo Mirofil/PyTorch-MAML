@@ -152,8 +152,8 @@ def main(config, args):
       print("HAHHA", data_idx, all_losses)
       sotl = sum([l[-1] for l in all_losses])
       for l in all_losses[:-1]:
-        for x in l:
-          l = l.detach()
+        for i in range(len(l)):
+          l[i] = l[i].detach()
 
 
       logits = logits.flatten(0, 1)
