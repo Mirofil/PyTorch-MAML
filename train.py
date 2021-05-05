@@ -141,6 +141,10 @@ def main(config, args):
         else:
           model.reset_classifier()
 
+      if args.split == "traintrain":
+        x_query = x_shot
+        y_query = y_shot
+
       logits, sotl = model(x_shot, x_query, y_shot, inner_args, meta_train=True)
       logits = logits.flatten(0, 1)
       labels = y_query.flatten()
