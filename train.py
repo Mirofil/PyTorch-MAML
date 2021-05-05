@@ -56,9 +56,6 @@ def main(config, args):
   train_set = datasets.make(config['dataset'], **config['train'])
   utils.log('meta-train set: {} (x{}), {}'.format(
     train_set[0][0].shape, len(train_set), train_set.n_classes))
-  train_loader = DataLoader(
-    train_set, config['train']['n_episode'],
-    collate_fn=datasets.collate_fn, num_workers=1, pin_memory=True)
 
   # meta-val
   eval_val = False
@@ -70,6 +67,12 @@ def main(config, args):
     val_loader = DataLoader(
       val_set, config['val']['n_episode'],
       collate_fn=datasets.collate_fn, num_workers=1, pin_memory=True)
+
+  if args.split == "traintrain" and config.get('val'):
+    train_set = torch.utils.data.ConcatDataset(train_set, val_set)
+  train_loader = DataLoader(
+  train_set, config['train']['n_episode'],
+  collate_fn=datasets.collate_fn, num_workers=1, pin_memory=True)
   
   ##### Model and Optimizer #####
 
@@ -162,8 +165,6 @@ def main(config, args):
         aves['ta'].update(acc, 1)
 
         sotl = sum(sotl) + loss
-      
-      
         optimizer.zero_grad()
         sotl.backward()
         for param in optimizer.param_groups[0]['params']:
