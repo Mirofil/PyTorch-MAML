@@ -20,7 +20,7 @@ import datasets
 import models
 import utils
 import utils.optimizers as optimizers
-
+from utils import wandb_auth
 
 def main(config, args):
   random.seed(0)
