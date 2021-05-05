@@ -151,7 +151,10 @@ def main(config, args):
       logits, sotl, all_losses = model(x_shot, x_query, y_shot, inner_args, meta_train=True)
       print("HAHHA", data_idx, all_losses)
       sotl = sum([l[-1] for l in all_losses])
-      
+      for l in all_losses[:-1]:
+        for x in l:
+          l = l.detach()
+
 
       logits = logits.flatten(0, 1)
       labels = y_query.flatten()
