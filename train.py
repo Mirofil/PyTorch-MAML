@@ -1,3 +1,6 @@
+# python train.py --config=configs/convnet4/mini-imagenet/5_way_1_shot/train_reproduce.yaml
+
+
 import argparse
 import os
 import random
