@@ -195,6 +195,7 @@ def main(config, args):
         aves['tl'].update(loss.item(), 1)
         aves['ta'].update(acc, 1)
         optimizer.zero_grad()
+        print("BACKWARD PASS!")
         all_sotls.backward()
         for param in optimizer.param_groups[0]['params']:
           nn.utils.clip_grad_value_(param, 10)
