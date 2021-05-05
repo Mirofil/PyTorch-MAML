@@ -68,8 +68,8 @@ def main(config, args):
       val_set, config['val']['n_episode'],
       collate_fn=datasets.collate_fn, num_workers=1, pin_memory=True)
 
-  if args.split == "traintrain" and config.get('val'):
-    train_set = torch.utils.data.ConcatDataset([train_set, val_set])
+  # if args.split == "traintrain" and config.get('val'): # TODO I dont think this is what they meant by train-train :D 
+  #   train_set = torch.utils.data.ConcatDataset([train_set, val_set])
   train_loader = DataLoader(
   train_set, config['train']['n_episode'],
   collate_fn=datasets.collate_fn, num_workers=1, pin_memory=True)
