@@ -159,13 +159,13 @@ def main(config, args):
       loss = F.cross_entropy(logits, labels)
 
       all_sovls += loss
-      if args.split == "trainval":
+      if args.split == "trainval" or (args.split == "sovl" and not data_idx % args.sotl_freq == 0):
 
         aves['tl'].update(loss.item(), 1)
         aves['ta'].update(acc, 1)
       
         optimizer.zero_grad()
-        loss.backward()
+        loss.backward(create_graph=True if args.split == "sovl" else False)
         for param in optimizer.param_groups[0]['params']:
           nn.utils.clip_grad_value_(param, 10)
         optimizer.step()
