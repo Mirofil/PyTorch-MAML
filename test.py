@@ -1,3 +1,5 @@
+# python test.py --config=configs/convnet4/mini-imagenet/5_way_1_shot/test_reproduce.yaml
+
 import argparse
 import random
 
@@ -61,7 +63,7 @@ def main(config):
         else:
           model.reset_classifier()
 
-      logits = model(x_shot, x_query, y_shot, inner_args, meta_train=False)
+      logits, sotl = model(x_shot, x_query, y_shot, inner_args, meta_train=False)
       logits = logits.view(-1, config['test']['n_way'])
       labels = y_query.view(-1)
       
