@@ -130,7 +130,7 @@ def main(config, args):
     writer.add_scalar('lr', optimizer.param_groups[0]['lr'], epoch)
     np.random.seed(epoch)
 
-    sotl_freq = 5
+    sotl_freq = 3
     all_sotls = 0
     all_sovls = 0
     for data_idx, data in enumerate(tqdm(train_loader, desc='meta-train', leave=False)):
