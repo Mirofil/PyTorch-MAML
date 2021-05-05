@@ -215,6 +215,7 @@ class MAML(Module):
         params.pop(name)
 
     logits = []
+    all_losses = []
     sotl = 0
     for ep in range(x_shot.size(0)):
       # inner-loop training
@@ -226,6 +227,7 @@ class MAML(Module):
       updated_params, losses = self._adapt(
         x_shot[ep], y_shot[ep], params, ep, inner_args, meta_train)
       sotl = sotl + sum(losses)
+      all_losses.append(losses)
       # inner-loop validations
       with torch.set_grad_enabled(meta_train):
         if split == "trainval":
@@ -235,4 +237,4 @@ class MAML(Module):
 
     self.train(meta_train)
     logits = torch.stack(logits)
-    return logits, sotl
+    return logits, sotl, all_losses

@@ -1,4 +1,4 @@
-# python train.py --config=configs/convnet4/mini-imagenet/5_way_1_shot/train_reproduce.yaml --split=sovl --load=False --sotl_freq=5
+# python train.py --config=configs/convnet4/mini-imagenet/5_way_1_shot/train_reproduce.yaml --split=sotl --load=False --sotl_freq=1
 
 
 import argparse
@@ -148,7 +148,8 @@ def main(config, args):
         x_query = x_shot
         y_query = y_shot
 
-      logits, sotl = model(x_shot, x_query, y_shot, inner_args, meta_train=True)
+      logits, sotl, all_losses = model(x_shot, x_query, y_shot, inner_args, meta_train=True)
+      sotl = sum([l[-1] for l in all_losses])
       logits = logits.flatten(0, 1)
       labels = y_query.flatten()
 
@@ -165,7 +166,7 @@ def main(config, args):
         aves['ta'].update(acc, 1)
       
         optimizer.zero_grad()
-        loss.backward(create_graph=True if args.split == "sovl" else False)
+        loss.backward()
         for param in optimizer.param_groups[0]['params']:
           nn.utils.clip_grad_value_(param, 10)
         optimizer.step()
