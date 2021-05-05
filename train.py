@@ -194,9 +194,6 @@ def main(config, args):
           nn.utils.clip_grad_value_(param, 10)
         optimizer.step()
         all_sotls = 0 # detach
-      else:
-        print(f"Args.split is {args.split}")
-        raise NotImplementedError
 
     # meta-val
     if eval_val:
