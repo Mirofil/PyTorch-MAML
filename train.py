@@ -1,4 +1,4 @@
-# python train.py --config=configs/convnet4/mini-imagenet/5_way_1_shot/train_reproduce.yaml --split=traintrain --load=False
+# python train.py --config=configs/convnet4/mini-imagenet/5_way_1_shot/train_reproduce.yaml --split=sotl --load=False
 
 
 import argparse
@@ -184,7 +184,6 @@ def main(config, args):
         loss = F.cross_entropy(logits, labels)
         aves['tl'].update(loss.item(), 1)
         aves['ta'].update(acc, 1)
-        print(sotl)
         optimizer.zero_grad()
         all_losses = sum(sotl)
         all_losses.backward()
