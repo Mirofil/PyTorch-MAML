@@ -165,7 +165,7 @@ def main(config, args):
       acc = utils.compute_acc(pred, labels)
       loss = F.cross_entropy(logits, labels)
 
-      all_sovls += loss
+      # all_sovls += loss
       if args.split == "trainval" or (args.split == "sovl" and not data_idx % args.sotl_freq == 0):
 
         aves['tl'].update(loss.item(), 1)
