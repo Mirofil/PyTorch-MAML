@@ -226,7 +226,7 @@ class MAML(Module):
       updated_params, losses = self._adapt(
         x_shot[ep], y_shot[ep], params, ep, inner_args, meta_train)
       sotl = sotl + sum(losses)
-      # inner-loop validation
+      # inner-loop validations
       with torch.set_grad_enabled(meta_train):
         if split == "trainval":
           self.eval()
@@ -235,4 +235,4 @@ class MAML(Module):
 
     self.train(meta_train)
     logits = torch.stack(logits)
-    return logits, sotl
+    return logits, sum(sotl)
