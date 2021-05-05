@@ -146,7 +146,6 @@ def main(config, args):
         y_query = y_shot
 
       logits, sotl = model(x_shot, x_query, y_shot, inner_args, meta_train=True)
-      print(sotl)
       logits = logits.flatten(0, 1)
       labels = y_query.flatten()
       
@@ -186,8 +185,7 @@ def main(config, args):
         aves['tl'].update(loss.item(), 1)
         aves['ta'].update(acc, 1)
         optimizer.zero_grad()
-        all_losses = sum(sotl)
-        all_losses.backward()
+        sotl.backward()
         for param in optimizer.param_groups[0]['params']:
           nn.utils.clip_grad_value_(param, 10)
         optimizer.step()
