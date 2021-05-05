@@ -161,8 +161,8 @@ def main(config, args):
         aves['tl'].update(loss.item(), 1)
         aves['ta'].update(acc, 1)
 
-        sotl = sotl + loss
-        sotl = sum(sotl)
+        sotl = sum(sotl) + loss
+      
       
         optimizer.zero_grad()
         sotl.backward()
