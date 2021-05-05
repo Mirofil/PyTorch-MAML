@@ -189,7 +189,7 @@ class MAML(Module):
         
     return params, losses
 
-  def forward(self, x_shot, x_query, y_shot, inner_args, meta_train):
+  def forward(self, x_shot, x_query, y_shot, inner_args, meta_train, y_query=None):
     """
     Args:
       x_shot (float tensor, [n_episode, n_way * n_shot, C, H, W]): support sets.
@@ -228,6 +228,7 @@ class MAML(Module):
       with torch.set_grad_enabled(meta_train):
         self.eval()
         logits_ep = self._inner_forward(x_query[ep], updated_params, ep)
+        loss = F.cross_entropy(logits_ep, y)
       logits.append(logits_ep)
 
     self.train(meta_train)

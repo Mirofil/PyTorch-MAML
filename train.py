@@ -1,4 +1,4 @@
-# python train.py --config=configs/convnet4/mini-imagenet/5_way_1_shot/train_reproduce.yaml --split=train-train
+# python train.py --config=configs/convnet4/mini-imagenet/5_way_1_shot/train_reproduce.yaml --split=traintrain
 
 
 import argparse
@@ -141,7 +141,6 @@ def main(config, args):
       logits, sotl = model(x_shot, x_query, y_shot, inner_args, meta_train=True)
       logits = logits.flatten(0, 1)
       labels = y_query.flatten()
-      
 
       if args.split == "trainval":
         pred = torch.argmax(logits, dim=-1)
@@ -156,7 +155,29 @@ def main(config, args):
           nn.utils.clip_grad_value_(param, 10)
         optimizer.step()
       elif args.split == "traintrain":
+        pred = torch.argmax(logits, dim=-1)
+        acc = utils.compute_acc(pred, labels)
+        loss = F.cross_entropy(logits, labels)
+        aves['tl'].update(loss.item(), 1)
+        aves['ta'].update(acc, 1)
 
+        sotl = sotl + loss
+        sotl = sum(sotl)
+      
+        optimizer.zero_grad()
+        sotl.backward()
+        for param in optimizer.param_groups[0]['params']:
+          nn.utils.clip_grad_value_(param, 10)
+        optimizer.step()
+
+      elif args.split == "sotl":
+        # TODO doesnt work whatsoever
+        pred = torch.argmax(logits, dim=-1)
+        acc = utils.compute_acc(pred, labels)
+        loss = F.cross_entropy(logits, labels)
+        aves['tl'].update(loss.item(), 1)
+        aves['ta'].update(acc, 1)
+      
         optimizer.zero_grad()
         all_losses = sum(sotl)
         all_losses.backward()
