@@ -130,7 +130,9 @@ def main(config, args):
     writer.add_scalar('lr', optimizer.param_groups[0]['lr'], epoch)
     np.random.seed(epoch)
 
-    for data in tqdm(train_loader, desc='meta-train', leave=False):
+    sotl_freq = 5
+    all_sotls = 0
+    for data_idx, data in enumerate(tqdm(train_loader, desc='meta-train', leave=False)):
       x_shot, x_query, y_shot, y_query = data
       x_shot, y_shot = x_shot.cuda(), y_shot.cuda()
       x_query, y_query = x_query.cuda(), y_query.cuda()
@@ -148,6 +150,8 @@ def main(config, args):
       logits, sotl = model(x_shot, x_query, y_shot, inner_args, meta_train=True)
       logits = logits.flatten(0, 1)
       labels = y_query.flatten()
+
+      all_sotls += sotl
       
 
       if args.split == "trainval":
@@ -177,7 +181,7 @@ def main(config, args):
           nn.utils.clip_grad_value_(param, 10)
         optimizer.step()
 
-      elif args.split == "sotl":
+      elif args.split == "sotl" and data_idx % sotl_freq == 0:
         # TODO doesnt work whatsoever
         pred = torch.argmax(logits, dim=-1)
         acc = utils.compute_acc(pred, labels)
@@ -185,10 +189,11 @@ def main(config, args):
         aves['tl'].update(loss.item(), 1)
         aves['ta'].update(acc, 1)
         optimizer.zero_grad()
-        sotl.backward()
+        all_sotls.backward()
         for param in optimizer.param_groups[0]['params']:
           nn.utils.clip_grad_value_(param, 10)
         optimizer.step()
+        all_sotls = 0 # detach
       else:
         print(f"Args.split is {args.split}")
         raise NotImplementedError
