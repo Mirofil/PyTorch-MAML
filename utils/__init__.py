@@ -93,7 +93,7 @@ def set_gpu(gpu):
   os.environ['CUDA_VISIBLE_DEVICES'] = gpu
 
 
-def ensure_path(path, remove=True):
+def ensure_path(path, remove=False):
   basename = os.path.basename(path.rstrip('/'))
   if os.path.exists(path):
     if remove:

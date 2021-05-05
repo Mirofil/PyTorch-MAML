@@ -74,7 +74,9 @@ def main(config, args):
   ##### Model and Optimizer #####
 
   inner_args = utils.config_inner_args(config.get('inner_args'))
-  if config.get('load') or args.load is True:
+  if config.get('load') or (args.load is True and os.path.exists(ckpt_path)):
+    if config.get('load') is None:
+      config['load'] = ckpt_path
     ckpt = torch.load(config['load'])
     config['encoder'] = ckpt['encoder']
     config['encoder_args'] = ckpt['encoder_args']
