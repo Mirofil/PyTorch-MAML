@@ -1,4 +1,4 @@
-# python train.py --config=configs/convnet4/mini-imagenet/5_way_1_shot/train_reproduce.yaml --split=traintrain
+# python train.py --config=configs/convnet4/mini-imagenet/5_way_1_shot/train_reproduce.yaml --split=traintrain --load=False
 
 
 import argparse
@@ -144,6 +144,7 @@ def main(config, args):
       logits, sotl = model(x_shot, x_query, y_shot, inner_args, meta_train=True)
       logits = logits.flatten(0, 1)
       labels = y_query.flatten()
+      
 
       if args.split == "trainval":
         pred = torch.argmax(logits, dim=-1)
@@ -164,9 +165,10 @@ def main(config, args):
         aves['tl'].update(loss.item(), 1)
         aves['ta'].update(acc, 1)
 
-        sotl = sum(sotl) + loss
+        # sotl = sum(sotl) + loss
         optimizer.zero_grad()
-        sotl.backward()
+        # sotl.backward()
+        loss.backward()
         for param in optimizer.param_groups[0]['params']:
           nn.utils.clip_grad_value_(param, 10)
         optimizer.step()
