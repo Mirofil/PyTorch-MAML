@@ -14,6 +14,7 @@ import numpy as np
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
+import wandb
 
 import datasets
 import models
@@ -28,6 +29,17 @@ def main(config, args):
   torch.cuda.manual_seed(0)
   # torch.backends.cudnn.deterministic = True
   # torch.backends.cudnn.benchmark = False
+
+  if config["dry_run"]:
+      os.environ['WANDB_MODE'] = 'dryrun'
+  if config["debug"]:
+      os.environ['WANDB_SILENT']="true"
+  wandb_auth()
+  try:
+      __IPYTHON__
+      wandb.init(project="NAS", group=f"maml")
+  except:
+      wandb.init(project="NAS", group=f"maml", config=config)
 
   ckpt_name = args.name
   if ckpt_name is None:
@@ -205,6 +217,7 @@ def main(config, args):
       writer.add_scalars('loss', {'meta-val': aves['vl']}, epoch)
       writer.add_scalars('acc', {'meta-val': aves['va']}, epoch)
 
+    wandb.log({"train_loss": aves['tl'], "train_acc": aves['ta'], "val_loss": aves['vl'], "val_acc": aves['va']})
     log_str += ', {} {}/{}'.format(t_epoch, t_elapsed, t_estimate)
     utils.log(log_str)
 
