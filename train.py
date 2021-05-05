@@ -1,4 +1,4 @@
-# python train.py --config=configs/convnet4/mini-imagenet/5_way_1_shot/train_reproduce.yaml --split=sovl --load=False
+# python train.py --config=configs/convnet4/mini-imagenet/5_way_1_shot/train_reproduce.yaml --split=sovl --load=False --sotl_freq=5
 
 
 import argparse
@@ -321,7 +321,7 @@ if __name__ == '__main__':
                     help='Whether to do normal MAML or SoTL-MAML')
   parser.add_argument('--load', default = True, type=lambda x: False if x in ["False", "false", "", "None"] else True,
                   help='Whether to do normal MAML or SoTL-MAML')
-  parser.add_argument('--sotl_freq', default = 3, type=int
+  parser.add_argument('--sotl_freq', default = 3, type=int,
                 help='Whether to do normal MAML or SoTL-MAML')
   
   args = parser.parse_args()
