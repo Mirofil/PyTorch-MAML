@@ -110,7 +110,7 @@ def main(config, args):
   for k in aves_keys:
     trlog[k] = []
 
-  for epoch in range(start_epoch, config['epoch'] + 1):
+  for epoch in tqdm(range(start_epoch, config['epoch'] + 1), desc = "Iterating over epochs"):
     timer_epoch.start()
     aves = {k: utils.AverageMeter() for k in aves_keys}
 
@@ -172,7 +172,7 @@ def main(config, args):
           else:
             model.reset_classifier()
 
-        logits = model(x_shot, x_query, y_shot, inner_args, meta_train=False)
+        logits, sotl = model(x_shot, x_query, y_shot, inner_args, meta_train=False)
         logits = logits.flatten(0, 1)
         labels = y_query.flatten()
         
