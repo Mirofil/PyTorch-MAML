@@ -150,10 +150,10 @@ def main(config, args):
 
       logits, sotl, all_losses = model(x_shot, x_query, y_shot, inner_args, meta_train=True)
       # print("HAHHA", data_idx, all_losses)
-      # sotl = sum([l[-1] for l in all_losses])
-      # for l in all_losses[:-1]:
-      #   for i in range(len(l)):
-      #     l[i] = l[i].detach()
+      sotl = sum([l[-1] for l in all_losses])
+      for l in all_losses[:-1]:
+        for i in range(len(l)):
+          l[i] = l[i].detach()
 
 
       logits = logits.flatten(0, 1)
@@ -165,7 +165,7 @@ def main(config, args):
       acc = utils.compute_acc(pred, labels)
       loss = F.cross_entropy(logits, labels)
 
-      # all_sovls += loss
+      # all_sovls += loss # TODO I think this causes blowup because it creates new tensors that never get discarded and it maintains the computational graph after?
       if args.split == "trainval" or (args.split == "sovl" and not data_idx % args.sotl_freq == 0):
 
         aves['tl'].update(loss.item(), 1)
@@ -195,7 +195,6 @@ def main(config, args):
         aves['tl'].update(loss.item(), 1)
         aves['ta'].update(acc, 1)
         optimizer.zero_grad()
-        print("BACKWARD PASS!")
         all_sotls.backward()
         for param in optimizer.param_groups[0]['params']:
           nn.utils.clip_grad_value_(param, 10)
