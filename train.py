@@ -228,7 +228,7 @@ def main(config, args):
           else:
             model.reset_classifier()
 
-        logits, sotl = model(x_shot, x_query, y_shot, inner_args, meta_train=False)
+        logits, sotl, all_losses = model(x_shot, x_query, y_shot, inner_args, meta_train=False)
         logits = logits.flatten(0, 1)
         labels = y_query.flatten()
         
