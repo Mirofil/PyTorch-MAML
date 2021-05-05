@@ -29,11 +29,6 @@ def main(config, args):
   torch.cuda.manual_seed(0)
   # torch.backends.cudnn.deterministic = True
   # torch.backends.cudnn.benchmark = False
-
-  if config["dry_run"]:
-      os.environ['WANDB_MODE'] = 'dryrun'
-  if config["debug"]:
-      os.environ['WANDB_SILENT']="true"
   wandb_auth()
   try:
       __IPYTHON__
