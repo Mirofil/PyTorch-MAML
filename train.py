@@ -132,6 +132,7 @@ def main(config, args):
 
     sotl_freq = 5
     all_sotls = 0
+    all_sovls = 0
     for data_idx, data in enumerate(tqdm(train_loader, desc='meta-train', leave=False)):
       x_shot, x_query, y_shot, y_query = data
       x_shot, y_shot = x_shot.cuda(), y_shot.cuda()
@@ -153,11 +154,13 @@ def main(config, args):
 
       all_sotls += sotl
       
+      pred = torch.argmax(logits, dim=-1)
+      acc = utils.compute_acc(pred, labels)
+      loss = F.cross_entropy(logits, labels)
 
+      all_sovls += sovl
       if args.split == "trainval":
-        pred = torch.argmax(logits, dim=-1)
-        acc = utils.compute_acc(pred, labels)
-        loss = F.cross_entropy(logits, labels)
+
         aves['tl'].update(loss.item(), 1)
         aves['ta'].update(acc, 1)
       
@@ -167,9 +170,7 @@ def main(config, args):
           nn.utils.clip_grad_value_(param, 10)
         optimizer.step()
       elif args.split == "traintrain":
-        pred = torch.argmax(logits, dim=-1)
-        acc = utils.compute_acc(pred, labels)
-        loss = F.cross_entropy(logits, labels)
+
         aves['tl'].update(loss.item(), 1)
         aves['ta'].update(acc, 1)
 
@@ -183,9 +184,7 @@ def main(config, args):
 
       elif args.split == "sotl" and data_idx % sotl_freq == 0:
         # TODO doesnt work whatsoever
-        pred = torch.argmax(logits, dim=-1)
-        acc = utils.compute_acc(pred, labels)
-        loss = F.cross_entropy(logits, labels)
+
         aves['tl'].update(loss.item(), 1)
         aves['ta'].update(acc, 1)
         optimizer.zero_grad()
@@ -194,6 +193,17 @@ def main(config, args):
           nn.utils.clip_grad_value_(param, 10)
         optimizer.step()
         all_sotls = 0 # detach
+      elif args.split == "sovl" and data_idx % sotl_freq == 0:
+        # TODO doesnt work whatsoever
+
+        aves['tl'].update(loss.item(), 1)
+        aves['ta'].update(acc, 1)
+        optimizer.zero_grad()
+        all_sovls.backward()
+        for param in optimizer.param_groups[0]['params']:
+          nn.utils.clip_grad_value_(param, 10)
+        optimizer.step()
+        all_sovls = 0 # detach
 
     # meta-val
     if eval_val:
