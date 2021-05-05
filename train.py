@@ -146,6 +146,7 @@ def main(config, args):
         y_query = y_shot
 
       logits, sotl = model(x_shot, x_query, y_shot, inner_args, meta_train=True)
+      print(sotl)
       logits = logits.flatten(0, 1)
       labels = y_query.flatten()
       
