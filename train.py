@@ -180,7 +180,7 @@ def main(config, args):
         loss = F.cross_entropy(logits, labels)
         aves['tl'].update(loss.item(), 1)
         aves['ta'].update(acc, 1)
-      
+        print(sotl)
         optimizer.zero_grad()
         all_losses = sum(sotl)
         all_losses.backward()
