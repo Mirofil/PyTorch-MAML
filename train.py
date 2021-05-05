@@ -130,7 +130,7 @@ def main(config, args):
     writer.add_scalar('lr', optimizer.param_groups[0]['lr'], epoch)
     np.random.seed(epoch)
 
-    sotl_freq = 2
+    
     all_sotls = 0
     all_sovls = 0
     for data_idx, data in enumerate(tqdm(train_loader, desc='meta-train', leave=False)):
@@ -182,7 +182,7 @@ def main(config, args):
           nn.utils.clip_grad_value_(param, 10)
         optimizer.step()
 
-      elif args.split == "sotl" and data_idx % sotl_freq == 0:
+      elif args.split == "sotl" and data_idx % args.sotl_freq == 0:
         # TODO doesnt work whatsoever
 
         aves['tl'].update(loss.item(), 1)
@@ -193,7 +193,7 @@ def main(config, args):
           nn.utils.clip_grad_value_(param, 10)
         optimizer.step()
         all_sotls = 0 # detach
-      elif args.split == "sovl" and data_idx % sotl_freq == 0:
+      elif args.split == "sovl" and data_idx % args.sotl_freq == 0:
         # TODO doesnt work whatsoever
 
         aves['tl'].update(loss.item(), 1)
@@ -321,6 +321,8 @@ if __name__ == '__main__':
                     help='Whether to do normal MAML or SoTL-MAML')
   parser.add_argument('--load', default = True, type=lambda x: False if x in ["False", "false", "", "None"] else True,
                   help='Whether to do normal MAML or SoTL-MAML')
+  parser.add_argument('--sotl_freq', default = 3, type=int
+                help='Whether to do normal MAML or SoTL-MAML')
   
   args = parser.parse_args()
   config = yaml.load(open(args.config, 'r'), Loader=yaml.FullLoader)
