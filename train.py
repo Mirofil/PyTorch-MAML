@@ -1,4 +1,4 @@
-# python train.py --config=configs/convnet4/mini-imagenet/5_way_1_shot/train_reproduce.yaml --split=sotl --load=False
+# python train.py --config=configs/convnet4/mini-imagenet/5_way_1_shot/train_reproduce.yaml --split=sovl --load=False
 
 
 import argparse
@@ -130,7 +130,7 @@ def main(config, args):
     writer.add_scalar('lr', optimizer.param_groups[0]['lr'], epoch)
     np.random.seed(epoch)
 
-    sotl_freq = 1
+    sotl_freq = 2
     all_sotls = 0
     all_sovls = 0
     for data_idx, data in enumerate(tqdm(train_loader, desc='meta-train', leave=False)):
