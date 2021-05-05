@@ -276,9 +276,8 @@ if __name__ == '__main__':
   parser.add_argument('--efficient', 
                       help='if True, enables gradient checkpointing',
                       action='store_true')
-  parser.add_argument('--split', default = "trainval",
-                    help='Whether to do normal MAML or SoTL-MAML',
-                    action='store_true')
+  parser.add_argument('--split', default = "trainval", type=str,
+                    help='Whether to do normal MAML or SoTL-MAML')
   
   args = parser.parse_args()
   config = yaml.load(open(args.config, 'r'), Loader=yaml.FullLoader)
