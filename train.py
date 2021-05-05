@@ -152,7 +152,7 @@ def main(config, args):
       # print("HAHHA", data_idx, all_losses)
       sotl = sum([l[-1] for l in all_losses])
       for l in all_losses[:-1]:
-        for i in range(len(l)):
+        for i in range(len(l)-1):
           l[i] = l[i].detach()
 
 
