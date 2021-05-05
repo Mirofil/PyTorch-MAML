@@ -235,4 +235,4 @@ class MAML(Module):
 
     self.train(meta_train)
     logits = torch.stack(logits)
-    return logits, sum(sotl)
+    return logits, sotl
