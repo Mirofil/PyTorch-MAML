@@ -215,6 +215,7 @@ class MAML(Module):
         params.pop(name)
 
     logits = []
+    sotl = 0
     for ep in range(x_shot.size(0)):
       # inner-loop training
       self.train()
@@ -222,8 +223,9 @@ class MAML(Module):
         for m in self.modules():
           if isinstance(m, BatchNorm2d) and not m.is_episodic():
             m.eval()
-      updated_params, sotl = self._adapt(
+      updated_params, losses = self._adapt(
         x_shot[ep], y_shot[ep], params, ep, inner_args, meta_train)
+      sotl = sotl + sum(losses)
       # inner-loop validation
       with torch.set_grad_enabled(meta_train):
         if split == "trainval":
