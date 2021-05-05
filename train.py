@@ -69,7 +69,7 @@ def main(config, args):
       collate_fn=datasets.collate_fn, num_workers=1, pin_memory=True)
 
   if args.split == "traintrain" and config.get('val'):
-    train_set = torch.utils.data.ConcatDataset(train_set, val_set)
+    train_set = torch.utils.data.ConcatDataset([train_set, val_set])
   train_loader = DataLoader(
   train_set, config['train']['n_episode'],
   collate_fn=datasets.collate_fn, num_workers=1, pin_memory=True)
